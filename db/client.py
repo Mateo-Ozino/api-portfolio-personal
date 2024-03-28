@@ -9,9 +9,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 #DB LOCAL
-# db_client = MongoClient().local
+db_client = MongoClient().local
 
-#DB REMOTA
-URI = os.getenv("MONGO_URL")
-# Create a new client and connect to the server
-db_client = MongoClient(URI, server_api=ServerApi('1')).test
+# #DB REMOTA
+# URI = os.getenv("MONGO_URL")
+# # Create a new client and connect to the server
+# db_client = MongoClient(URI, server_api=ServerApi('1')).test
