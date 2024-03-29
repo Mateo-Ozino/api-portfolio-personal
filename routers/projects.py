@@ -34,6 +34,25 @@ async def create_project(project: Project):
   
   return Project(**new_project)
 
+@router.post("/many", status_code=status.HTTP_201_CREATED)
+async def create_multiple_projects(projects: list[dict]):    
+  projects_list : list[dict] = []
+  
+  for project in projects:
+    if type(search_project("name", project["name"])) == Project:
+      raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Uno de los proyectos ya existe")
+    project_dict = dict(project)
+    del project_dict["id"]
+    projects_list.append(project_dict)
+  
+  try:
+    db_client.projects.insert_many(projects_list)
+  except:
+    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Error creando multiples proyectos")
+  
+  new_projects = db_client.projects.find()
+  return projects_schema(new_projects)
+
 @router.put("/", response_model=Project, status_code=status.HTTP_200_OK)
 async def total_project_update(project: Project):
   project_dict = dict(project)

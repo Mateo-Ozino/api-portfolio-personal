@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from routers import projects
+from routers import projects, skills, techs
 from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
@@ -19,3 +19,5 @@ app.add_middleware(
 )
 
 app.include_router(projects.router)
+app.include_router(techs.router)
+app.include_router(skills.router)
