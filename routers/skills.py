@@ -1,9 +1,11 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Depends
 from bson import ObjectId
 from pymongo import ReturnDocument
 from db.client import db_client
+from db.models.user import User
 from db.models.skills import Skill
 from db.schemas.skills import skill_schema, skills_schema
+from routers.login import auth_user
 
 router = APIRouter(prefix="/skills", tags=["skills"])
 
@@ -21,7 +23,10 @@ async def read_skill(id: str):
   return skill
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
-async def create_skill(skill: Skill):
+async def create_skill(skill: Skill, user: User = Depends(auth_user)):
+  if user["is_disabled"]:
+    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Usuario inactivo")
+  
   if type(search_skill("name", skill.name)) == Skill:
     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="La skill ya existe")
   
@@ -35,7 +40,10 @@ async def create_skill(skill: Skill):
   return Skill(**new_skill)
 
 @router.post("/many", status_code=status.HTTP_201_CREATED)
-async def create_multiple_skills(skills: list[dict]):    
+async def create_multiple_skills(skills: list[dict], user: User = Depends(auth_user)):
+  if user["is_disabled"]:
+    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Usuario inactivo")
+  
   skills_list : list[dict] = []
   
   for skill in skills:
@@ -54,7 +62,10 @@ async def create_multiple_skills(skills: list[dict]):
   return skills_schema(new_skills)
 
 @router.put("/", response_model=Skill, status_code=status.HTTP_200_OK)
-async def total_skill_update(skill: Skill):
+async def total_skill_update(skill: Skill, user: User = Depends(auth_user)):
+  if user["is_disabled"]:
+    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Usuario inactivo")
+  
   skill_dict = dict(skill)
   del skill_dict["id"]
   
@@ -66,7 +77,10 @@ async def total_skill_update(skill: Skill):
   return search_skill("_id", ObjectId(skill.id))
 
 @router.patch("/{id}", response_model=Skill, status_code=status.HTTP_200_OK)
-async def partial_skill_update(id: str, modifications: Skill):
+async def partial_skill_update(id: str, modifications: Skill, user: User = Depends(auth_user)):
+  if user["is_disabled"]:
+    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Usuario inactivo")
+
   try:
     db_client.skills.find_one_and_update({"_id": ObjectId(id)}, {'$set': modifications.model_dump(exclude_unset=True)}, return_document=ReturnDocument.AFTER)
   except:
@@ -75,9 +89,11 @@ async def partial_skill_update(id: str, modifications: Skill):
   return search_skill("_id", ObjectId(id))
 
 @router.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_skill(id: str):
+async def delete_skill(id: str, user: User = Depends(auth_user)):
+  if user["is_disabled"]:
+    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Usuario inactivo")
   try:
-    found = db_client.skills.find_one_and_delete({"_id": ObjectId(id)})
+    db_client.skills.find_one_and_delete({"_id": ObjectId(id)})
   except:
     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Skill no eliminada correctamente")
 

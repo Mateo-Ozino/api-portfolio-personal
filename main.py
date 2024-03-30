@@ -1,11 +1,10 @@
 from fastapi import FastAPI
-from routers import projects, skills, techs
-from fastapi.middleware.cors import CORSMiddleware
+from routers import projects, skills, techs, login
+from starlette.middleware.cors import CORSMiddleware
 
 app = FastAPI()
 
 origins = [
-    "http://localhost",
     "http://localhost:5173",
     "https://portfoliomateoozino.vercel.app"
 ]
@@ -21,3 +20,4 @@ app.add_middleware(
 app.include_router(projects.router)
 app.include_router(techs.router)
 app.include_router(skills.router)
+app.include_router(login.router)
