@@ -4,7 +4,8 @@ def project_schema(project) -> dict:
           "description": project["description"],
           "logo": project["logo"],
           "url": project["url"],
-          "is_deployed": project["is_deployed"]}
+          "is_deployed": project["is_deployed"],
+          "order": project["order"]}
 
 def projects_schema(projects) -> list:
   return [project_schema(project) for project in projects]
