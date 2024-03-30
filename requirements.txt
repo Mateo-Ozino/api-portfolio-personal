@@ -8,9 +8,11 @@ cryptography==42.0.5
 dnspython==2.6.1
 ecdsa==0.18.0
 fastapi==0.110.0
+gunicorn==21.2.0
 h11==0.14.0
 httptools==0.6.1
 idna==3.6
+packaging==24.0
 passlib==1.7.4
 pyasn1==0.6.0
 pycparser==2.21
