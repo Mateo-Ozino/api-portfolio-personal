@@ -48,12 +48,6 @@ async def auth_user(token: str = Depends(oauth2)):
   except JWTError:
     raise AUTH_EXCEPTION
 
-@router.get("/me")
-async def get_user(user: User = Depends(auth_user)):
-  if user["is_disabled"]:
-    raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Usuario inactivo")
-  return user
-
 def search_user(field: str, key):
   try:
     user = db_client.users.find_one({field: key})
